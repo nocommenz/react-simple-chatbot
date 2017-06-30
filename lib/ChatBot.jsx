@@ -322,7 +322,9 @@ class ChatBot extends Component {
     const result = currentStep.validator(inputValue);
     const value = inputValue;
 
-    if (typeof result !== 'boolean' || !result) {
+    if (typeof result === 'string') {
+      currentStep.trigger = inputValue;
+    } else if (typeof result !== 'boolean' || !result) {
       this.setState({
         inputValue: result.toString(),
         inputInvalid: true,
