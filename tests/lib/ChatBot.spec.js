@@ -112,6 +112,122 @@ describe('ChatBot', () => {
     });
   });
 
+  describe('Vilidate with alternative trigger', () => {
+    const validateAlternativeTrigger = (value) => {
+      if (value === '1') { return 'alt1'; }
+
+      return 'alt2';
+    };
+
+    const wrapper = mount(
+      <ChatBot
+        botDelay={0}
+        userDelay={0}
+        customDelay={0}
+        handleEnd={() => {}}
+        steps={[
+          {
+            id: '1',
+            message: 'Hello World',
+            trigger: 'user',
+          },
+          {
+            id: 'user',
+            user: true,
+            validator: validateAlternativeTrigger,
+            trigger: 'alt2',
+          },
+          {
+            id: 'alt1',
+            message: 'alt1',
+            end: true,
+          },
+          {
+            id: 'alt2',
+            message: 'alt2',
+            end: true,
+          },
+        ]}
+      />,
+    );
+
+    before((done) => {
+      wrapper.setState({ inputValue: '1' });
+      wrapper.find('.rsc-input').simulate('keyPress', { key: 'Enter' });
+
+      setTimeout(() => {
+        done();
+      }, 500);
+    });
+
+    it('should render', () => {
+      expect(wrapper.hasClass('rsc')).to.be.equal(true);
+    });
+
+    it('should render 3 texts steps', () => {
+      expect(wrapper.find(TextStep)).to.have.length(3);
+    });
+
+    it('should render a text step with "alt1" message', () => {
+      const text = wrapper.find('.rsc-ts-bubble').last().text();
+      expect(text).to.be.equal('alt1');
+    });
+  });
+
+  describe('Invalid input', () => {
+    const validateInput = value => (
+      value === 'true'
+    );
+
+    const wrapper = mount(
+      <ChatBot
+        botDelay={0}
+        userDelay={0}
+        customDelay={0}
+        handleEnd={() => {}}
+        steps={[
+          {
+            id: '1',
+            message: 'Hello',
+            trigger: 'user',
+          },
+          {
+            id: 'user',
+            user: true,
+            validator: validateInput,
+            trigger: 'end',
+          },
+          {
+            id: 'end',
+            message: 'bye',
+            end: true,
+          },
+        ]}
+      />,
+    );
+
+    it('should render', () => {
+      expect(wrapper.hasClass('rsc')).to.be.equal(true);
+    });
+
+    it('should trigger invalid input', () => {
+      wrapper.setState({ inputValue: 'false' });
+      wrapper.find('.rsc-input').simulate('keyPress', { key: 'Enter' });
+      expect(wrapper.state('inputInvalid')).to.be.equal(true);
+    });
+
+    it('should trigger valid after show invalid input', (done) => {
+      setTimeout(() => {
+        done();
+      }, 1900);
+
+      setTimeout(() => {
+        expect(wrapper.state('inputInvalid')).to.be.equal(false);
+        done();
+      }, 1900);
+    });
+  });
+
   describe('No Header', () => {
     const wrapper = mount(
       <ChatBot

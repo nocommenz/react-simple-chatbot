@@ -323,7 +323,7 @@ class ChatBot extends Component {
     const value = inputValue;
 
     if (typeof result === 'string') {
-      currentStep.trigger = inputValue;
+      currentStep.trigger = result;
     } else if (typeof result !== 'boolean' || !result) {
       this.setState({
         inputValue: result.toString(),
